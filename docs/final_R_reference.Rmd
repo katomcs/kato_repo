@@ -1,0 +1,280 @@
+---
+title: "final_R_reference"
+author: "kato"
+date: "2022-12-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# R Reference Guide {.tabset .tabset-pills}
+
+
+## Loading Data and Packages
+When attempting to use add-on packages  that are not a part of the base R package, you must notify R that you want to use them using require() and library()
+
+```{r load-in}
+library("palmerpenguins")
+require(here)
+```
+Now the "palmerpenguins" data set and the here() command are ready to use!
+
+If you would like to load in a csv file that is on your computer you can use read.csv() to choose the file and here() to bring it into your R workspace
+```{r outside-files}
+ginkgo = read.csv(here("data", "ginkgo_data_2022.csv"))
+```
+This creates a data frame with the data you loaded in.]
+
+## Data Structures
+The function c() combines or concatenates its arguments into a vector (a 1-dimensional data structure consisting of 1 or more elements). All of the elements must be of the same type. I can’t combine character and numeric types in the same call to c()
+
+```{r c}
+## Create a vector of numbers:
+num_vec  = c(1, 5, 8, 9, 13, 57)
+
+## Create a vector of characters:
+char_vec = c("a", "spiderz", "data is le epic swag")
+```
+
+The length() function is used to tell you the length/sum of items within a vector. 
+```{r length}
+## If I want to know how many items are in my vector of numbers I could simply:
+ length(num_vec)
+
+## I can do the same with my character vector:
+length (char_vec)
+```
+
+matrix() creates a matrix from a given set of values. 
+* data = the data used to fill in the matric
+* nrow = # of rows
+* ncol = # of columns
+* byrow (TRUE/FALSE) = whether or not you want the matric to be sorted by row (true) or column(false)
+```{r matrix}
+num_col = matrix(data = num_vec, nrow = 2, ncol = 3, byrow = FALSE)
+print(num_col)
+
+num_row = matrix(data = num_vec, nrow = 2, ncol = 3, byrow = TRUE)
+print(num_row)
+```
+Notice the difference of the organization?
+
+
+data.frame() creates a table that display many different groups of data. Different columns can house different types of data but very column must have the same type of data. 
+For example, lets say we work at a veterinarians office and we need to make a table for the patients we saw that day: 
+Column 1 could be all characters: like the species of dog, Column 2 could be logical: like whether or not the dog had fleas, and column 3 for be numbers: like the dogs weight in pounds.
+
+The structure is as follows:
+```{r data.frame}
+dog_data <- data.frame(
+  dog_species = c("German Shephard","Boxer","Rottweiler","Yorkie","Jack Russel"),
+  fleas_present = c(TRUE,FALSE, FALSE, TRUE, FALSE),
+  dog_weight_lbs = c(80.4, 75.6, 100.5, 15.3, 20.6 )
+)
+
+print(dog_data)
+```
+
+Now that you have created a data frame, it helps to be able to understand the dimensions of it. You can do that with the following functions: 
+```{r nrow}
+## to find the number of rows in a data set you can:
+nrow(ginkgo)
+## to find the number of columns in a data set you can:
+ncol(ginkgo)
+## and if you want to know both the row and column dimensions (IN THAT ORDER!) you can:
+dim(ginkgo)
+```
+## Subsetting 
+To retrieve a specific column from your data set you can call the name of the data frame and use the "$" symbol to specify the column you wish to view.This will print the data from that column as such:
+```{r ginkgo site_id}
+ginkgo$site_id
+```
+
+If you want to select a specific row/column based on their order you can use []. The format is as such: The first number represents the row number, and the second number represents the column number. If you wanted data from the first row and second column you would write [1,2]. If you only want data from a row or column, you can leave the other piece blank. Here is how you apply it:
+```{r rows and columns}
+## we want ONLY row 1
+ginkgo[1,]
+
+## we want row 2, column 3
+ginkgo[2,3]
+
+## we want ONLY column 3 
+ginkgo[,3]
+```
+
+To create a new data frame that applies to a certain criteria, you can use subset(). In this case, if I only wanted to look at data from Adelie penguins, I could drop any data that was associated with the other species.
+```{r subset()}
+dat_adelie = droplevels(subset(penguins, species == "Adelie"))
+```
+## Numerical Data Exploration
+If we want to create a summary of a data set that includes information such as: the min. and max., the quartiles, the mean, and the median we can use: summary(). Here is a summary of the ginkgo data.
+```{r ginkgo summary}
+## this creates a summary of the entire data frame
+summary(ginkgo)
+```
+
+
+If you want to find the mean of a group of data you can use: mean()
+```{r mean}
+## The mean maximum width of the ginkgo leaves is:
+mean(ginkgo$max_width)
+```
+
+We can execute something similar to find the standard deviation of a group of data with: sd()
+```{r sd}
+## The standard deviation of maximum width of the ginkgo leaves is:
+sd(ginkgo$max_width)
+```
+
+## Graphical Data Exploration 
+In order to visualize data, youll need to graph it. We can start out with a basic scatter plot using plot(). Lets plot max leaf depth (x) and max leaf width (y).
+```{r ginkgo}
+## x is max leaf depth, y is max leaf width
+plot(x = ginkgo$max_depth, y = ginkgo$max_width)
+```
+
+
+Now this is a cool graph, but it is missing a lot of crucial details and personalizations like a title, axis labels, etc. Let's fix that!
+```{r new-ginkgo}
+## x is max leaf depth, y is max leaf width
+plot(x = ginkgo$max_depth, y = ginkgo$max_width,
+     ## the color of the data points. Enter your chosen color in parentheses or the hex code. 
+      col = "orange",
+     ## the shape of the data points. The default is unshaded circles. I want mine to be triangles, so I will find the corresponding symbol and include it
+      pch = 17,
+     ## refers to the relative size of the text. The default is '1', and whatever you enter will be a permutation of that. I want the text to be 80% of the original size so I will do the following:
+      cex = .8,
+     ## Dictates the title of the graph. Always put it in quotation marks and use \n to create a new line
+      main = "Maximim leaf depth and width of \n Ginkgo leaves found on UMass Campus", 
+     ## dictates the x axis label. our x axis is max depth
+      xlab = "Maximum Leaf Depth",
+     ## dictates the y axis label. our y axis is max width
+      ylab = "Maximum Leaf Width",
+     ## Dictates the size of the X-axis. If I want to extend the x-axiz past the default I can do so with this notation: range(min value, max value)
+      xlim = range(0,140),
+     ## Same as xlim, but on the y-axis
+      ylim = range(0,160)
+       )
+```
+
+
+If we wanted to make a histogram we could do this:
+```{r hist-penguin}
+hist(penguins$flipper_length_mm)
+```
+
+Again, this is a bit lackluster. Lets personalize this
+```{r new-hist}
+hist(penguins$flipper_length_mm,
+  ## we know these from the last one:
+  col = "purple",
+  cex = .8,
+  main = "penguin flipper length",
+  xlab = "Flipper Length",
+  ## the "breaks" arguments dictates the bin organization of the histogram. I am going to make the bins far too big to illustrate the usage!
+  breaks =c(160,190, 220, 240))
+```
+
+Now if we wanted to make a boxplot, we could do this: 
+```{r bonx-plot}
+## blox plot of petiole length
+boxplot(ginkgo$petiole_length, main = "Total Petiole Length", ylab = "Petiole Length")
+## boxplot of petiole length conditioned on whether or not seeds were present on the tree
+boxplot(petiole_length ~ seeds_present, dat = ginkgo, main ="Petiole Length by seed presence", cex = .6, ylab = "Petiole Length", xlab = "Seeds Present?")
+
+```
+
+If we wanted to create a panel of multiple graphs, we can using this method:
+```{r 4panels}
+## to put the graphs on a 4 graph panel in a 2/2 grid, we can use par(mfrow = c(# of rows, # of columns)). In this case I want 2 rows and 2 columns
+par(mfrow = c(2,2))
+hist(penguins$bill_length_mm, main = "Penguin Bill Length", xlab = "Bill Legnth (mm)")
+hist(penguins$flipper_length_mm, main = "Penguin Flipper Length",  xlab = "Flipper Legnth (mm)")
+hist(penguins$bill_depth_mm, main = "Penguin Bill Depth",  xlab = "Bill Depth (mm)")
+hist(penguins$body_mass_g, main = "Penguin Body Mass",  xlab = "Body Mass (g)")
+
+```
+
+
+## Distribution Functions
+
+
+The function dnorm() gives you the value of the **probability density function** (pdf) for a normal distribution with certain parameters (Either a value or a vector of values) 
+* x = your value 
+* mean = population mean
+* sd = the population standard deviation.
+
+Lets start with a standard normal distribution:
+
+```{r dnorm}
+dnorm(x = 0, mean = 0, sd = 1)
+```
+
+pnorm() gives you the value of the **cumulative density function** (cdf) of the normal distribution given certain parameters (Either a value or a vector of values) 
+* q = your value
+* mean = population mean
+* sd = the population standard deviation
+* lowertail = TRUE/FALSE depending on if you want the calculation to estimate greater than the quartile (false) or less than the quartile (true). It is FALSE by default. 
+
+pnorm() gives you the area to the **left** of a given value x in the normal distribution, unless told otherwise!
+
+Lets try again with a standard normal distribution:
+
+```{r pnorm }
+pnorm(q = .5, mean = 0, sd = 1, lower.tail = FALSE)
+```
+
+This function gives you the **inverse cumulative density function** (cdf) of the normal distribution given a certain parameters
+* p = your value
+* mean = the population mean
+* sd = standard deviation 
+* lowertail = TRUE/FALSE depending on if you want the calculation to estimate greater than the quartile (false) or less than the quartile (true). It is FALSE by default. 
+
+Lets try again with a standard normal distribution:
+```{r qnorm}
+qnorm(q = .5, mean = 0, sd = 1, lower.tail = FALSE)
+```
+
+dbinom() gives you the value of the **probability density function** (pdf) of the binomial distribution given certain paramters: 
+* x = your number of successes
+* size = # of trials
+* prob = probability of success
+
+whats the probability of getting 5 heads when I flip a coin 8 times?
+```{r dbinom}
+## 5 heads = 5 successes -> 8 coin flips = 8 trials -> flipping coin = prob. of .5
+dbinom(x = 5, size = 8, prob = .5)
+```
+
+pbinom() gives you the value of the **cumulative density function** (cdf) of the binomial distribution given certain parameters:
+* q = your value
+* size = number of trials 
+* prob = probability of success 
+* lowertail = TRUE/FALSE depending on if you want the calculation to estimate greater than the quartile (false) or less than the quartile (true). It is FALSE by default. 
+
+
+pbinom gives you the area to the **left** of your q value in the binomial distribution, unless otherwise told to!
+
+
+For example: find the probability of **more than** 3 heads during 5 coin flips 
+```{r pbinom}
+
+pbinom(q = 3, size=5, prob=.5, lower.tail=FALSE)
+```
+
+qbinom() gives you the value of the **inverse cumulative density function** (cdf) of the binomial distribution given certain parameters:
+* q = your value
+* size = number of trials 
+* prob = probability of success 
+* lowertail = TRUE/FALSE depending on if you want the calculation to estimate greater than the quartile (false) or less than the quartile (true). It is FALSE by default. 
+
+qbinom gives you the area to the **left** of your q value in the binomial distribution, unless otherwise told to!
+
+find the 15th quantile out of 100 trials with a probability of 0.5 of success for each trial
+```{r qbinom}
+
+qbinom(.15, size=100, prob=.5)
+```
+
+
