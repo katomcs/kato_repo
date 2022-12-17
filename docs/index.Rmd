@@ -1,0 +1,17 @@
+---
+title: "Kato's Project Homepage"
+author: "kato"
+date: "2022-12-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Welcome to Kato's class page
+
+[Final Project: R Reference Guide](final_R_reference.html)
+
+
